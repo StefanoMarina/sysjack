@@ -37,6 +37,7 @@ jackd2 should be preferred to jackd1 as it should have a fix with the infamous d
 - An **external sound card** is recommended since pi's internal audio card is hardly capable of handling realtime audio, as it works
 with an intermediate buffer. I never managed to run jackd succesfully with the builtin audio card.
 - You will also need **perl** installed ```sudo apt-get install perl```.
+- Finally, unless you have a way for downloading this, you will probably need ```sudo apt-get install git``` to clone this repository.
 
 ## Alsacap
 ALSACAP is a small piece of code by Volker Schatz. Source code is included here as it is not easy to find. It will enumerate
