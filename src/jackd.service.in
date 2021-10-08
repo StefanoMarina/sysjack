@@ -1,0 +1,14 @@
+[Unit]
+Description=JACKD Sound daemon
+After=sound.target
+
+[Service]
+User=USERNAME
+Group=audio
+Environment="JACK_NO_AUDIO_RESERVATION=1"
+ExecStart=COMMAND_LINE
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority={jack/priority}
+
+[Install]
+WantedBy=multi-user.target
