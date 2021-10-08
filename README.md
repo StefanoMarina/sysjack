@@ -60,12 +60,19 @@ configure.pl will accept the following syntax: _.configure.pl (config=configfile
 - config: you can specify the json file to write.
 - key: this setting tells configure that the json file is not all about sysjack. configure will search the matching _key_ and write there all his setting, preserving other stuff. This is useful if you are using a single, large json file for configuration.
 
+### Alsa and backups
+configure.pl will ask you if you want to create an /etc/asound.conf file. This file will set your selected audio card as ALSA default audio card, and will create an alias for SYSJACK alsa device called SYSJACK, so you can use i.e. ```aplay -D SYSJACK``` if you don't want to change your default audio card.
+
+Any major file change is always backupped in home directory/.sysjack as a .backup file.
+
 ## install.pl
 install.pl accepts this sintax: _./install.pl unit-name (config=configfile) (key=jsonkey) (-y)_.
 
 coonfig and key are the same value as configure.pl.
 
 The -y(es) flag will skip the install/local question and just install the required service.
+
+
 
 # Changing / adding services
 
