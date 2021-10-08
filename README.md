@@ -11,6 +11,11 @@ so you can reuse JACK's settings with other applications.
 As a bonus, SYSJACK can create other systemd services, which can be really useful if you are planning to do a simple synth, i.e. a single
 process running on JACK.
 
+Benefits of this approach are:
+- all systemd benefits including restart on crash;
+- hierarchy: run other stuff only after JACKD is started;
+- configurable: sometimes you have to change parameters over and over to get the right configuration. Some other times you need to know certain parameters. This helped me a lot in checking out the right configuration for my headless pi.
+
 ## Requirements
 
 You need a Linux OS with a **low latency kernel**. To find out if yours kernels are realtime, write:
@@ -117,3 +122,32 @@ To add a service, add a new entry in units, use the name you want for a service,
 }
 ...
 ```
+
+### Cookbook: zynaddsubfx
+
+Let's say you want zynaddsubfx, the famous open source synth, to automatically start _after_ JACKD. You also want to make it OSC responsive, so you need to have the
+port as a property that can be read elsewhere.
+
+Let's open config.json and add this bit under the 'user' property:
+
+```
+"user" : {
+   "zyn_OSC": "7777"
+   "sub_priority": "80",
+}
+```
+now let's write the unit, add this bit under "units", just before "jackd":
+```
+"units" : {
+   "zynasfx": "/usr/local/bin/zynaddsubfx -U -A=0 -I JACK -O JACK -o 256 -b {jack/buffersize} -r {card/samplerate} -P {user/zyn_OSC}",
+   "jackd" : "/usr/bin/jackd -R -p{jack/ports} -t{jack/timeout} -d alsa -d{card/alsa_id} -{jack/alsa_mode} -p {jack/buffersize} -n {jack/alsa_periods} -r {card/samplerate} -s"
+}
+```
+
+run ```./install.pl zynasfx``` and press (l) when asked to install. this will create a .service file inside SYSJACK directory. check it out - if the file is correct, run install.pl with the -y flag to install the service.
+
+## Further customization
+Let's say you need to customize you service but you don't want to change it everytime.
+
+```cp src/default.service.in src/myservice.service.in``` where _myservice_ is your unit name (i.e. zynasfx.service.in). This will tell install.pl to use a customized template when recustomizing services.
+
