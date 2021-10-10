@@ -94,7 +94,7 @@ exit 0 if (! ($answer =~ /[Aa]/) );
 
 if ($isAlsaPresent eq "") {
   print "Error: ALSA utils not present!\n";
-  print "Do you want me to install alsa-utils? (y = yes, any other key: cancel): ";
+  print "Do you want me to install alsa-utils? (y)es, (enter) to skip: ";
   
   $answer = <STDIN>;
   if ($answer =~ /[yY][\n\r]*/) {
@@ -107,11 +107,10 @@ if ($isAlsaPresent eq "") {
 
 if ($isJackPresent eq "") {
   print "Error: jack is not present!\n";
-  print "Do you want me to install jack? (1 = jackd1, 2 = jackd2, any other key: cancel)";
-    $answer = <STDIN>;
-  
-  if ($answer eq "1" || $answer eq "2") {
-    system ("sudo apt-get install jackd$answer");
+  $answer = requestInput("Do you want me to install jackd2? (y)es or (enter) to skip", "[yY]", "skip");
+    
+  if ($answer =~ /[Yy]/) {
+    system ("sudo apt-get install --no-recommends jackd2 a2jmidid aj-snapshot");
     print ("Restart install.pl");
     exit 0;
   }
@@ -122,15 +121,16 @@ if ($isJackPresent eq "") {
 if (!$isAlsaCapPresent) {
   print "ALSA Capabilities (c) 2007 Volker Schatz\n";
   print "alsacap is not present. This will not enable us to see the sound card capabilities.\n";
-  print "make alsacap? this requires autotoools. y=yes, any other key skip:";
-  $answer = <STDIN>;
+
+  $answer = requestInput ("Make alsacap? (y)es or (enter) to skip:", "[Yy]", "skip");
+  
   if ($answer =~ /[Yy]/) {
     my $result = `cd src/alsacap; make; cd ../..`;
     print "check out if installation was correct...";
     if (-e "src/alsacap/alsacap") {
-      print "OK. restart program.\n";
+      print "OK.\n Restart program.\n";
     } else {
-      print "FAILED. Please try to build manually at src/alsacap.\n";
+      print "FAILED.\n Please try to build manually at src/alsacap.\n";
       exit 1;
     }
     exit 0;
@@ -157,7 +157,7 @@ foreach (@output) {
 
 print "\n\n# CONFIG\nUser: $USER\nHome: $HOME\nConfiguration file: $CONFIG_FILE\nBackup folder: $BACKUP_FOLDER\n";
 
-print "User is assumed to be '$USER'. enter user name or null to confirm:";
+print "User is assumed to be '$USER'. press (enter) to confirm or enter new user name:";
 $answer = <STDIN>;
 chomp ($answer);
 
@@ -166,7 +166,7 @@ if ($answer ne "") {
   $HOME = "/home/$USER";
 }
 
-print "\nHome dir is $HOME. Press enter to confirm or input new path:";
+print "\nHome dir is $HOME. Press (enter) to confirm or input new path:";
 $answer = <STDIN>;
 chomp ($answer);
 $HOME = $answer if ($answer ne "");
@@ -181,7 +181,7 @@ foreach (@cards) {
 }
 
 
-$answer = requestInput("Select audio card (1-$index, CTRL+C to quit)", "\\d+", "");
+$answer = requestInput("Select audio card (1-$index)", "\\d+", "");
   
 exit 0 if (scalar($answer) > $index);
 my $selected_card = $cards[$answer-1];
@@ -208,20 +208,20 @@ my %jack;
 print "# JACK params\n";
 
 $jack{'buffersize'} = requestInput(
-  "Input buffer size (default 512, lower= less latency, more cpu needed - must be power of 2)",
+  "Input buffer size (lower= less latency, more cpu needed - must be power of 2) or (enter) for default (512)",
   "\\d+", 512);
-$jack{'ports'} = requestInput ("Input max number of jack ports (2 - 256, at least 2 for each client, default 16)", "\\d+", 16);
-$jack{'priority'} = requestInput ("JACK process priority (1 - 95, the higher the better, default 80)", "\\d+", "80");
+$jack{'ports'} = requestInput ("Input max number of jack ports (2 - 256, at least 2 for each client) or (enter) for default (16)", "\\d+", 16);
+$jack{'priority'} = requestInput ("JACK process priority (1 - 95, the higher the better) or (enter) for  default (80)", "\\d+", "80");
 $jack{'alsa_mode'} = uc (requestInput ("Device mode: (c)apture only, (p)layback only, (d)uplex (default: p)", "[cCpPdD]", "P"));
-$jack{'alsa_periods'} = requestInput ("Playback latency periods (default 2, may prevent xruns)", "\\d+", "2");
-$jack{'timeout'} = requestInput ("client timeout in ms - 500 min, 2000 reccomended (default)", "\\d+", "2000");
+$jack{'alsa_periods'} = requestInput ("Playback latency periods (default 2, usb should be 3, higher  may prevent xruns) or (enter) for default (2)", "\\d+", "2");
+$jack{'timeout'} = requestInput ("client timeout in ms - 500 min, or (enter) for default (2000)", "\\d+", "2000");
 
 if (-e "/etc/security/limits.d/audio.conf.disabled" || ! -e "/etc/security/limits.d/audio.conf") {
   print "Warning! 'audio' group realtime privileges were not set. JACKD will not be able to obtain realtime privileges.\n";
   print "\n\nrun sudo dpkg-reconfigure -p high jackd2\n\n";
 }
 
-$answer = requestInput("Enable JACK MIDI? may be unnecessary if you have alsa (default none): (s)eq (r)aw or enter for none:" , "[sSrR]", "none");
+$answer = requestInput("Enable JACK MIDI? may be unnecessary if you have alsa (default none): (s)eq (r)aw or (enter) for none:" , "[sSrR]", "none");
 $jack{'midi'} = "-X raw" if ($answer =~ /[Ss]/);
 $jack{'midi'} = "-X seq" if ($answer =~ /[rR]/);
 $jack{'midi'} = "" if ($answer eq "none");
