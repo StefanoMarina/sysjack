@@ -28,9 +28,11 @@ my $isJackPresent = `which jackd`;
 my $isAlsaPresent = `which aplay`;
 my $isAlsaCapPresent = (-e "./src/alsacap/alsacap");
 my $answer = "";
-my $USER = `who | awk '{print \$1}'`;
+
+my ($USER) = `who | awk '{print \$1}'` =~ /^(\w+)/gm;
 chomp ($USER);
-my $HOME = $ENV{HOME};
+
+my $HOME = "/home/$USER";
 my $TARGET_DIR = "/opt/sysjack";
 
 my $BACKUP_FOLDER = $HOME."/.sysjack";
@@ -153,7 +155,21 @@ foreach (@output) {
   }
 }
 
-print "\n\nCONFIG\nUser: $USER\nHome: $HOME\nConfiguration file: $CONFIG_FILE\nBackup folder: $BACKUP_FOLDER\n";
+print "\n\n# CONFIG\nUser: $USER\nHome: $HOME\nConfiguration file: $CONFIG_FILE\nBackup folder: $BACKUP_FOLDER\n";
+
+print "User is assumed to be '$USER'. enter user name or null to confirm:";
+$answer = <STDIN>;
+chomp ($answer);
+
+if ($answer ne "") {
+  $USER = $answer;
+  $HOME = "/home/$USER";
+}
+
+print "\nHome dir is $HOME. Press enter to confirm or input new path:";
+$answer = <STDIN>;
+chomp ($answer);
+$HOME = $answer if ($answer ne "");
 
 my $index = 0;
 print "# AUDIO CARD\n";
@@ -235,7 +251,11 @@ if ($answer =~ /[Yy]/) {
   close(FH);
   
   print "Forcing alsa reload. This may take a while...\n";
-  system "alsa force-reload";
+  if ( `which alsa` eq "") {
+   system "sudo alsactl kill rescan";
+  } else {
+    system "alsa force-reload";
+  }
 }
 
   doBackup($CONFIG_FILE, "config.json") if (-e "$CONFIG_FILE");
