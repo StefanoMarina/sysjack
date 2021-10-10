@@ -3,11 +3,12 @@
 use strict;
 use warnings;
 use JSON;
+use Cwd;
 
-BEGIN {push @INC, $ENV{PWD}."/src";}
+BEGIN {push @INC, getcwd()."/src";}
 use options;
 
-my $USER = `who | awk '{print \$1}'`;
+my ($USER) = `who | awk '{print \$1}'` =~ /^(\w+)/gm;
 chomp($USER);
 
 my %options = Options::parseCommandLine(@ARGV);
@@ -62,7 +63,7 @@ if (-e "./src/$unit.service.in") {
 }
 
 $source =~ s/USERNAME/$USER/g;
-$source =~ s/COMMAND_LINE/$unit $commandLine/g;
+$source =~ s/COMMAND_LINE/$commandLine/g;
 
 my $desc = (exists $options{'description'}) 
               ? $options{'description'}
