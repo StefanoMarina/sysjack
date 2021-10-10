@@ -221,8 +221,13 @@ if (-e "/etc/security/limits.d/audio.conf.disabled" || ! -e "/etc/security/limit
   print "\n\nrun sudo dpkg-reconfigure -p high jackd2\n\n";
 }
 
+$answer = requestInput("Enable JACK MIDI? may be unnecessary if you have alsa (default none): (s)eq (r)aw or enter for none:" , "[sSrR]", "none");
+$jack{'midi'} = "-X raw" if ($answer =~ /[Ss]/);
+$jack{'midi'} = "-X seq" if ($answer =~ /[rR]/);
+$jack{'midi'} = "" if ($answer eq "none");
+
 $answer = requestInput(
-  "Do you want to set $selected_card->{'longname'} as the default alsa card? Requires configure to be launched as sudo. (y)es or any other key to skip",
+  "Do you want to set $selected_card->{'longname'} as the default alsa card? Requires configure to be launched as sudo. (y)es or (enter) to skip",
   "[yY]", "skip");
   
 if ($answer =~ /[Yy]/) {
@@ -272,7 +277,7 @@ if (-e $CONFIG_FILE) {
   ${$jdata{'user'}}{'sub_priority'} = '80' if (exists $jdata{'user'});
   
   my %units = (exists $jdata{'units'}) ? %{$jdata{'units'}} : ();
-  $units{'jackd'} = '/usr/bin/jackd -R -p{jack/ports} -t{jack/timeout} -d alsa -d{card/alsa_id} -{jack/alsa_mode} -p {jack/buffersize} -n {jack/alsa_periods} -r {card/samplerate} -s';
+  $units{'jackd'} = '/usr/bin/jackd -R -p{jack/ports} -t{jack/timeout} -d alsa -d{card/alsa_id} -{jack/alsa_mode} -p {jack/buffersize} -n {jack/alsa_periods} -r {card/samplerate} -s {jack/midi}';
   $jdata{'units'} = \%units;
   
 } else {
