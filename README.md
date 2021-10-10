@@ -45,6 +45,8 @@ ALSACAP is a small piece of code by Volker Schatz. Source code is included here 
 any audio device capability, including sample rate and sample format. You may need tools such as __make__ and __autotools__ to
 compile it. It is not necessary but useful.
 
+If you want to use alsacap, do the following:
+
 ## PERL
 Perl is a common, if not ancient, script language. You don't need to know anything perl, just to install it
 ```
@@ -53,6 +55,13 @@ sudo apt-get install perl libjson-perl
 This will also install the JSON library needed to read/write configs.
 
 # Installation
+
+## Setting up the environment
+
+```
+sudo apt-get install --no-recommends jackd2
+sudo apt-get install perl libjson-perl libasound2-dev
+```
 
 1. First, clone this repository. ```git clone https://github.com/StefanoMarina/sysjack.git sysjack```;
 2. Enable execution of perl files ```sudo chmod +x *.pl```;
