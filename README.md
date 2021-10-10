@@ -28,6 +28,7 @@ if PREEMPT is present in the name of your operating system, you have
 low latency kernels. Otherwise [here is a guide to generating them] (#https: //github.com/dddomin3/DSPi).
 
 You will need ALSA drivers (always present)  and JACKD2, which you can get by simply writing
+
 ```
 sudo apt-get install --no-recommends jackd2
 ```
@@ -43,6 +44,13 @@ with an intermediate buffer. I never managed to run jackd succesfully with the b
 ALSACAP is a small piece of code by Volker Schatz. Source code is included here as it is not easy to find. It will enumerate
 any audio device capability, including sample rate and sample format. You may need tools such as __make__ and __autotools__ to
 compile it. It is not necessary but useful.
+
+## PERL
+Perl is a common, if not ancient, script language. You don't need to know anything perl, just to install it
+```
+sudo apt-get install perl libjson-perl
+```
+This will also install the JSON library needed to read/write configs.
 
 # Installation
 
