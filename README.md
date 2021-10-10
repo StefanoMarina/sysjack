@@ -16,7 +16,8 @@ Benefits of this approach are:
 - hierarchy: run other stuff only after JACKD is started;
 - configurable: sometimes you have to change parameters over and over to get the right configuration. Some other times you need to know certain parameters. This helped me a lot in checking out the right configuration for my headless pi.
 
-## Requirements
+# Installation
+## Low latency kernel
 
 You need a Linux OS with a **low latency kernel**. To find out if yours kernels are realtime, write:
 
@@ -27,47 +28,56 @@ uname -a
 if PREEMPT is present in the name of your operating system, you have
 low latency kernels. Otherwise [here is a guide to generating them] (#https: //github.com/dddomin3/DSPi).
 
-You will need ALSA drivers (always present)  and JACKD2, which you can get by simply writing
+If you are on Raspberry pi3/pi4, give a try to the 64 bit edition, as of 5.10 is pre-built for low latency: [https://downloads.raspberrypi.org/raspios_lite_arm64/images/](https://downloads.raspberrypi.org/raspios_lite_arm64/images/).
+
+## Jack daemon
+
+It should be easy enough to install jack:
 
 ```
 sudo apt-get install --no-recommends jackd2
+/sbin/setcap cap_ipc_lock,cap_sys_nice=ep /usr/bin/jackd
 ```
+
+The latter I have found on [this thread](https://www.linuxquestions.org/questions/slackware-14/current-and-jack-real-time-scheduling-4175672262/) and seems to be necessary for jackd to be able to obtain realtime privileges.
 
 jackd2 should be preferred to jackd1 as it should have a fix with the infamous d-bus error. SYSJACK does take care of that too.
 
-- An **external sound card** is recommended since pi's internal audio card is hardly capable of handling realtime audio, as it works
-with an intermediate buffer. I never managed to run jackd succesfully with the builtin audio card.
-- You will also need **perl** installed ```sudo apt-get install perl```.
-- Finally, unless you have a way for downloading this, you will probably need ```sudo apt-get install git``` to clone this repository.
+## Hardware!
+An **external sound card** is recommended since pi's internal audio card is hardly capable of handling realtime audio, as it works
+with an intermediate buffer. I never managed to run jackd succesfully with the builtin audio card. I guess it would be possible with
+the highest possible latency...
 
-## Alsacap
+## Some programmers' stuff
+
+```
+sudo apt-get install git perl libjson-perl libasound2-dev
+```
+
+This will help you install PERL and some C libraries for ALSAcap, a small utility listed below.
+It will also help you install git, useful for downloading sysjack!
+
+### Alsacap
 ALSACAP is a small piece of code by Volker Schatz. Source code is included here as it is not easy to find. It will enumerate
 any audio device capability, including sample rate and sample format. You may need tools such as __make__ and __autotools__ to
-compile it. It is not necessary but useful.
+compile it. It is not necessary but useful. It is embedded with sysjack.
 
-If you want to use alsacap, do the following:
-
-## PERL
-Perl is a common, if not ancient, script language. You don't need to know anything perl, just to install it
-```
-sudo apt-get install perl libjson-perl
-```
-This will also install the JSON library needed to read/write configs.
-
-# Installation
-
-## Setting up the environment
-
-```
-sudo apt-get install --no-recommends jackd2
-sudo apt-get install perl libjson-perl libasound2-dev
-```
+## Let's get our hands dirty
 
 1. First, clone this repository. ```git clone https://github.com/StefanoMarina/sysjack.git sysjack```;
 2. Enable execution of perl files ```sudo chmod +x *.pl```;
 3. Let's configure SYSJACK! do ```./configure.pl``` to start the process and follow the instructions.
 4. Now that a config.json file was made, run ```./install.pl jackd``` to create a jackd.service. Press 'i' when asked to install or local, to install it on system directory.
 5. Done!
+
+Ensure that everything is ok: first do ```pgrep jackd``` and check out the process number.
+
+If there is no number, Jackd failed! do ```systemctl status jackd``` or ``cat /var/log/syslog | grep jackd`` and start bugging from there.
+If jackd is running, do ``chrt --pid `` and the number which comes out with pgrep. The output should look like this:
+```
+current scheduling policy: SCHED_RR
+current scheduling priority: 80 <- or wathever you put when you configured it
+```
 
 # Details
 
