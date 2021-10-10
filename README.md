@@ -36,10 +36,10 @@ It should be easy enough to install jack:
 
 ```
 sudo apt-get install --no-recommends jackd2
-/sbin/setcap cap_ipc_lock,cap_sys_nice=ep /usr/bin/jackd
+sudo /sbin/setcap cap_ipc_lock,cap_sys_nice=ep /usr/bin/jackd
 ```
 
-The latter I have found on [this thread](https://www.linuxquestions.org/questions/slackware-14/current-and-jack-real-time-scheduling-4175672262/) and seems to be necessary for jackd to be able to obtain realtime privileges.
+The latter I have found on [this thread](https://www.linuxquestions.org/questions/slackware-14/current-and-jack-real-time-scheduling-4175672262/) and seems to be necessary for jackd to be able to obtain realtime privileges. May be needed for any process you want to run realtime.
 
 jackd2 should be preferred to jackd1 as it should have a fix with the infamous d-bus error. SYSJACK does take care of that too.
 
