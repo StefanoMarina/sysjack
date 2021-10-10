@@ -16,9 +16,9 @@
 use strict;
 use warnings;
 use JSON;
-use Data::Dumper;
+use Cwd;
 
-BEGIN {push @INC, $ENV{PWD}."/src";}
+BEGIN {push @INC, getcwd() ."/src";}
 use options;
 
 my %options = Options::parseCommandLine(@ARGV);
