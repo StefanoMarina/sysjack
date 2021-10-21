@@ -26,7 +26,7 @@ uname -a
 ```
 
 if PREEMPT is present in the name of your operating system, you have
-low latency kernels. You can [try to build one](https: //github.com/dddomin3/DSPi) instead.
+low latency kernels. You can [try to build one](https://github.com/dddomin3/DSPi) instead.
 
 If you are on Raspberry pi3/pi4, give a chance to 64 bit edition, as of 5.10 Raspberry Pi OS is pre-built for low latency: [https://downloads.raspberrypi.org/raspios_lite_arm64/images/](https://downloads.raspberrypi.org/raspios_lite_arm64/images/).
 
