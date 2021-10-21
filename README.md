@@ -26,13 +26,13 @@ uname -a
 ```
 
 if PREEMPT is present in the name of your operating system, you have
-low latency kernels. Otherwise [here is a guide to generating them] (#https: //github.com/dddomin3/DSPi).
+low latency kernels. You can [try to build one](#https: //github.com/dddomin3/DSPi) instead.
 
-If you are on Raspberry pi3/pi4, give a try to the 64 bit edition, as of 5.10 is pre-built for low latency: [https://downloads.raspberrypi.org/raspios_lite_arm64/images/](https://downloads.raspberrypi.org/raspios_lite_arm64/images/).
+If you are on Raspberry pi3/pi4, give a chance to 64 bit edition, as of 5.10 Raspberry Pi OS is pre-built for low latency: [https://downloads.raspberrypi.org/raspios_lite_arm64/images/](https://downloads.raspberrypi.org/raspios_lite_arm64/images/).
 
 ## Jack daemon
 
-It should be easy enough to install jack:
+Install jack daemon first:
 
 ```
 sudo apt-get install --no-recommends jackd2
@@ -48,7 +48,7 @@ An **external sound card** is recommended since pi's internal audio card is hard
 with an intermediate buffer. I never managed to run jackd succesfully with the builtin audio card. I guess it would be possible with
 the highest possible latency...
 
-## Some programmers' stuff
+## Install Git Perl and ALSA Dev
 
 ```
 sudo apt-get install git perl libjson-perl libasound2-dev
@@ -98,8 +98,7 @@ install.pl accepts this sintax: _./install.pl unit-name (config=configfile) (key
 coonfig and key are the same value as configure.pl.
 
 The -y(es) flag will skip the install/local question and just install the required service.
-
-
+The -s(tring) flag will simply output the command line string. This is useful if you want to install your services on bash profiles instead of systemd.
 
 # Changing / adding services
 
