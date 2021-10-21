@@ -13,6 +13,20 @@ chomp($USER);
 
 my %options = Options::parseCommandLine(@ARGV);
 die "Missing unit name!" if !exists $options{'verb'};
+
+$USER = $options{'user'} if (exists $options{'user'});
+
+if (!exists $options{'user'}) {
+  print "User is assumed to be '$USER'. press (enter) to confirm or enter new user name:";
+  $answer = <STDIN>;
+  chomp ($answer);
+
+  if ($answer ne "") {
+    $USER = $answer;
+    $HOME = "/home/$USER";
+  }
+}
+
 my $CONFIG_FILE = (exists $options{'config'}) ? $options{'config'} : "config.json";
 my $key = (exists $options{'key'}) ? $options{'key'} : undef;
 
@@ -76,26 +90,32 @@ $source = replaceAll('user', $source);
 
 my $answer = (exists $options{'-y'}) ? "i" : "";
 
+$answer = "s" if exists $options{'-s'};
+
 while ($answer eq "" || !($answer =~ /[IiLl]/)) {
-  print "\nService ready. (i)nstall or (l)ocal?";
+  print "\nService ready. (i)nstall, (l)ocal or (s)tring?";
   $answer = lc <STDIN>;
   chomp($answer);
 }
 
-open (FH, '>', "$unit.service") or die $!;
-print FH $source;
-close (FH);
-  
-if ($answer eq "i") {
-  if (-e "/etc/systemd/system/$unit.service") {
-    system "sudo systemctl stop /etc/systemd/system/$unit.service";
-    system "sudo systemctl disable /etc/systemd/system/$unit.service";
-  }
+if ( lc($answer) =~ /[il]/) {
+  open (FH, '>', "$unit.service") or die $!;
+  print FH $source;
+  close (FH);
+  if ($answer eq "i") {
+    if (-e "/etc/systemd/system/$unit.service") {
+      system "sudo systemctl stop /etc/systemd/system/$unit.service";
+      system "sudo systemctl disable /etc/systemd/system/$unit.service";
+    }
     system "sudo cp $unit.service /etc/systemd/system";
     system "sudo systemctl enable $unit";
     system "rm $unit.service";
-    
+      
     print "Type sudo systemctl start $unit to start service.\n";
+  } else {
+    print "created file $unit.service.\n";
+  }
 } else {
-  print "created file $unit.service.\n";
+  print $commandLine . "\n";
 }
+

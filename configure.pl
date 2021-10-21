@@ -32,6 +32,8 @@ my $answer = "";
 my ($USER) = `who | awk '{print \$1}'` =~ /^(\w+)/gm;
 chomp ($USER);
 
+$USER = $options{'user'} if (exists $options{'user'});
+
 my $HOME = "/home/$USER";
 my $TARGET_DIR = "/opt/sysjack";
 
@@ -157,13 +159,15 @@ foreach (@output) {
 
 print "\n\n# CONFIG\nUser: $USER\nHome: $HOME\nConfiguration file: $CONFIG_FILE\nBackup folder: $BACKUP_FOLDER\n";
 
-print "User is assumed to be '$USER'. press (enter) to confirm or enter new user name:";
-$answer = <STDIN>;
-chomp ($answer);
+if (!exists $options{'user'}) {
+  print "User is assumed to be '$USER'. press (enter) to confirm or enter new user name:";
+  $answer = <STDIN>;
+  chomp ($answer);
 
-if ($answer ne "") {
-  $USER = $answer;
-  $HOME = "/home/$USER";
+  if ($answer ne "") {
+    $USER = $answer;
+    $HOME = "/home/$USER";
+  }
 }
 
 print "\nHome dir is $HOME. Press (enter) to confirm or input new path:";
