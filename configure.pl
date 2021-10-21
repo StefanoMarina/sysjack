@@ -24,6 +24,21 @@ use options;
 my %options = Options::parseCommandLine(@ARGV);
 my $CONFIG_FILE = (exists $options{'config'}) ? $options{'config'} : "config.json";
 
+if (exists $options{'--help'} || exists $options{'-h'}) {
+  print '
+  SYSJACK configuration script
+  Usage:
+  ./configure.pl [config=configfile] [key=jsonkey] [--help|-h] [user=username]
+  
+  config  *filename*  output config on custom path
+  key     *keyname*   output config as a property instead of plain object
+  user    *username*  force username
+  
+  if config is not specified, config.json on current directory is assumed.
+  ';
+  exit 0;
+}
+
 my $isJackPresent = `which jackd`;
 my $isAlsaPresent = `which aplay`;
 my $isAlsaCapPresent = (-e "./src/alsacap/alsacap");

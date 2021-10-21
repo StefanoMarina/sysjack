@@ -12,6 +12,26 @@ my ($USER) = `who | awk '{print \$1}'` =~ /^(\w+)/gm;
 chomp($USER);
 
 my %options = Options::parseCommandLine(@ARGV);
+
+if (exists $options{'--help'} || exists $options{'-h'}) {
+  print '
+  SYSJACK installation script
+  Usage:
+  ./configure.pl [config=configfile] [key=jsonkey] [--help|-h] [user=username] [-y] [-s] [unit]
+  
+  config  *filename*  output config on custom path
+  key     *keyname*   output config as a property instead of plain object
+  user    *username*  force username
+  -y      update/install systemd without asking
+  -s      print command line string without asking
+  unit    unit name inside config file (mandatory)
+  
+  if config is not specified, config.json on current directory is assumed.
+  ';
+  exit 0;
+}
+
+
 die "Missing unit name!" if !exists $options{'verb'};
 
 $USER = $options{'user'} if (exists $options{'user'});
