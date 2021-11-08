@@ -128,12 +128,11 @@ if (!$isAlsaCapPresent) {
     my $result = `cd src/alsacap; make; cd ../..`;
     print "check out if installation was correct...";
     if (-e "src/alsacap/alsacap") {
-      print "OK. restart program.\n";
+      print "OK.\n";
     } else {
       print "FAILED. Please try to build manually at src/alsacap.\n";
       exit 1;
     }
-    exit 0;
   }
 }
 
@@ -265,24 +264,33 @@ if ($answer =~ /[Yy]/) {
 my %jdata;
 my $key = (exists $options{'key'}) ? $options{'key'} : undef;
 
+my $SKELETON_JACKD_CONFIG = '/usr/bin/jackd -R -p{jack/ports} -t{jack/timeout} -d alsa -d{card/alsa_id} -{jack/alsa_mode} -p {jack/buffersize} -n {jack/alsa_periods} -r {card/samplerate} -s';
+
 if (-e $CONFIG_FILE) {
   %jdata = Options::loadConfigFile($CONFIG_FILE, $key);
-  $jdata{'card'} = $selected_card;
-  $jdata{'jack'} = \%jack;
-  ${$jdata{'user'}}{'sub_priority'} = '80' if (exists $jdata{'user'});
   
+  # tries to update user data without replacing any additional value
+  if (exists $jdata{'user'}) {
+    ${$jdata{'user'}}{'sub_priority'} = '80';
+  } else {
+    $jdata{'user'} = { 'sub_priority' => '80' };
+  }
+
   my %units = (exists $jdata{'units'}) ? %{$jdata{'units'}} : ();
-  $units{'jackd'} = '/usr/bin/jackd -R -p{jack/ports} -t{jack/timeout} -d alsa -d{card/alsa_id} -{jack/alsa_mode} -p {jack/buffersize} -n {jack/alsa_periods} -r {card/samplerate} -s';
+
+  $units{'jackd'} = $SKELETON_JACKD_CONFIG;
   $jdata{'units'} = \%units;
   
 } else {
   %jdata = (
-    'card' => $selected_card,
-    'jack' => \%jack,
     'user' => { 'sub_priority' => '80'},
-    'units' => {'jackd' => '/usr/bin/jackd -R -p{jack/ports} -t{jack/timeout} -d alsa -d{card/alsa_id} -{jack/alsa_mode} -p {jack/buffersize} -n {jack/alsa_periods} -r {card/samplerate} -s'}
+    'units' => {'jackd' => $SKELETON_JACKD_CONFIG}
   );
 }
+
+$jdata{'card'} = $selected_card;
+$jdata{'jack'} = \%jack;
+
 
 # SYSJACK installation
 Options::saveConfigFile($CONFIG_FILE, \%jdata, $key);
