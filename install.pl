@@ -3,61 +3,11 @@
 use strict;
 use warnings;
 use JSON;
-use Cwd;
 
-BEGIN {push @INC, getcwd()."/src";}
+BEGIN {push @INC, $ENV{PWD}."/src";}
 use options;
 
-<<<<<<< HEAD
 # globals
-=======
-my ($USER) = `who | awk '{print \$1}'` =~ /^(\w+)/gm;
-chomp($USER);
-
-my %options = Options::parseCommandLine(@ARGV);
-
-if (exists $options{'--help'} || exists $options{'-h'}) {
-  print '
-  SYSJACK installation script
-  Usage:
-  ./configure.pl [config=configfile] [key=jsonkey] [--help|-h] [user=username] [-y] [-s] [unit]
-  
-  config  *filename*  output config on custom path
-  key     *keyname*   output config as a property instead of plain object
-  user    *username*  force username
-  -y      update/install systemd without asking
-  -s      print command line string without asking
-  unit    unit name inside config file (mandatory)
-  
-  if config is not specified, config.json on current directory is assumed.
-  ';
-  exit 0;
-}
-
-
-die "Missing unit name!" if !exists $options{'verb'};
-
-$USER = $options{'user'} if (exists $options{'user'});
-
-if (!exists $options{'user'}) {
-  print "User is assumed to be '$USER'. press (enter) to confirm or enter new user name:";
-  $answer = <STDIN>;
-  chomp ($answer);
-
-  if ($answer ne "") {
-    $USER = $answer;
-    $HOME = "/home/$USER";
-  }
-}
-
-my $CONFIG_FILE = (exists $options{'config'}) ? $options{'config'} : "config.json";
-my $key = (exists $options{'key'}) ? $options{'key'} : undef;
-
-die "Missing $CONFIG_FILE" if ! -e $CONFIG_FILE;
-
-my %JSON = Options::loadConfigFile($CONFIG_FILE, $key);
-die "Cannot translate JSON: $!\n" if keys %JSON == 0;
->>>>>>> 2db602be93d8c3889bf16c90f5c0529f87c70f3a
 
 my %JSON; ## global json object
 my $answer; ## default answer scalar
@@ -149,7 +99,7 @@ if (-e "./src/$unit.service.in") {
 }
 
 $source =~ s/USERNAME/$USER/g;
-$source =~ s/COMMAND_LINE/$commandLine/g;
+$source =~ s/COMMAND_LINE/$unit $commandLine/g;
 
 my $desc = (exists $options{'description'}) 
               ? $options{'description'}
@@ -163,19 +113,12 @@ $source = replaceAll('user', $source);
 $answer = (exists $options{'-y'}) ? "i" : "";
 $answer  = (exists $options{'-s'}) ? "s" : $answer;
 
-<<<<<<< HEAD
 while ($answer eq "" || !($answer =~ /[IiLlSs]/)) {
-=======
-$answer = "s" if exists $options{'-s'};
-
-while ($answer eq "" || !($answer =~ /[IiLl]/)) {
->>>>>>> 2db602be93d8c3889bf16c90f5c0529f87c70f3a
   print "\nService ready. (i)nstall, (l)ocal or (s)tring?";
   $answer = lc <STDIN>;
   chomp($answer);
 }
 
-<<<<<<< HEAD
 if ($answer =~ /[il]/i ) {
   open (FH, '>', "$unit.service") or die $!;
   print FH $source;
@@ -183,18 +126,10 @@ if ($answer =~ /[il]/i ) {
 
 
   if (lc($answer) eq "i") {
-=======
-if ( lc($answer) =~ /[il]/) {
-  open (FH, '>', "$unit.service") or die $!;
-  print FH $source;
-  close (FH);
-  if ($answer eq "i") {
->>>>>>> 2db602be93d8c3889bf16c90f5c0529f87c70f3a
     if (-e "/etc/systemd/system/$unit.service") {
       system "sudo systemctl stop /etc/systemd/system/$unit.service";
       system "sudo systemctl disable /etc/systemd/system/$unit.service";
     }
-<<<<<<< HEAD
       system "sudo cp $unit.service /etc/systemd/system";
       system "sudo systemctl enable $unit";
       system "rm $unit.service";
@@ -205,17 +140,4 @@ if ( lc($answer) =~ /[il]/) {
   }
 } else {
   print $source;
-=======
-    system "sudo cp $unit.service /etc/systemd/system";
-    system "sudo systemctl enable $unit";
-    system "rm $unit.service";
-      
-    print "Type sudo systemctl start $unit to start service.\n";
-  } else {
-    print "created file $unit.service.\n";
-  }
-} else {
-  print $commandLine . "\n";
->>>>>>> 2db602be93d8c3889bf16c90f5c0529f87c70f3a
 }
-
