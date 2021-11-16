@@ -1,7 +1,9 @@
 # files that get created a lot
 *.json
 *.service
+# alsacap build
 src/alsacap/alsacap
+src/alsacap/alsacap.1
 
 !Build/
 .last_cover_stats

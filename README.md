@@ -91,7 +91,7 @@ SYSJACK works on a simple string replacement method. the json file has 3 categor
 - **user** contaning misc stuff
 
 here is a simple .json
-```
+```json
 {
    "card" : {
       "card_id" : "1",
@@ -146,14 +146,14 @@ port as a property that can be read elsewhere.
 
 Let's open config.json and add this bit under the 'user' property:
 
-```
+```json
 "user" : {
    "zyn_OSC": "7777"
    "sub_priority": "80",
 }
 ```
 now let's write the unit, add this bit under "units", just before "jackd":
-```
+```json
 "units" : {
    "zynasfx": "/usr/local/bin/zynaddsubfx -U -A=0 -I JACK -O JACK -o 256 -b {jack/buffersize} -r {card/samplerate} -P {user/zyn_OSC}",
    "jackd" : "/usr/bin/jackd -R -p{jack/ports} -t{jack/timeout} -d alsa -d{card/alsa_id} -{jack/alsa_mode} -p {jack/buffersize} -n {jack/alsa_periods} -r {card/samplerate} -s"
