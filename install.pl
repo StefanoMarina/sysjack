@@ -4,7 +4,9 @@ use strict;
 use warnings;
 use JSON;
 
-BEGIN {push @INC, $ENV{PWD}."/src";}
+use Cwd qw( abs_path );
+use File::Basename qw (dirname);
+use lib dirname(abs_path(__FILE__));
 use options;
 
 # globals
@@ -38,7 +40,7 @@ if (exists $options{'--help'} || exists $options{'-h'}) {
   print '
   SYSJACK installation script
   Usage:
-  ./configure.pl [config=configfile] [key=jsonkey] [--help|-h] [user=username] [-y] [-s] [unit]
+  ./configure.pl [--help|-h] [config=configfile] [key=jsonkey]  [user=username] [-y] [-s] [unit]
   
   config  *filename*  output config on custom path
   key     *keyname*   read config json as a property instead of root json object

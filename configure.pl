@@ -16,12 +16,26 @@
 use strict;
 use warnings;
 use JSON;
-use Cwd;
-
-BEGIN {push @INC, getcwd() ."/src";}
+use Cwd qw( abs_path );
+use File::Basename qw (dirname);
+use lib dirname(abs_path(__FILE__));
 use options;
 
 my %options = Options::parseCommandLine(@ARGV);
+
+if (exists $options{'--help'} || exists $options{'-h'}) {
+  print '
+  SYSJACK configuration script
+  Usage:
+  ./sysjack.pl [--help|-h] [config=configuration_file] [key=json_key] [user=username]
+  --help : display this help screen
+  config  *filename*  select a specific file path (otherwise config.json is generated)
+  key     *string* if a .json file exists, specify a property. Root object is create if missing.
+  user    *username* force username
+'
+exit 0;
+}
+
 my $CONFIG_FILE = (exists $options{'config'}) ? $options{'config'} : "config.json";
 
 my $isJackPresent = `which jackd`;
@@ -98,42 +112,34 @@ if ($isAlsaPresent eq "") {
   
   $answer = <STDIN>;
   if ($answer =~ /[yY][\n\r]*/) {
-    system ("sudo apt-get install alsa-utils");
-    print ("Restart install.pl");
-    exit 0;
+    $answer = system ("sudo apt-get install alsa-utils");
+    exit ($answer >> 8)  if ($answer != 0);
+  } else {
+    exit 1;
   }
-  exit 1;
 }
 
 if ($isJackPresent eq "") {
   print "Error: jack is not present!\n";
-  print "Do you want me to install jack? (1 = jackd1, 2 = jackd2, any other key: cancel)";
-    $answer = <STDIN>;
+  print "Do you want me to install jackd? (y)es, any other key abort:";
+  $answer = <STDIN>;
   
-  if ($answer eq "1" || $answer eq "2") {
-    system ("sudo apt-get install jackd$answer");
-    print ("Restart install.pl");
-    exit 0;
+  if ($answer =~ /[yY]/) {
+    $answer = system ("sudo apt-get install jackd2");
+    exit ($answer >> 8) if ($answer != 0);
+  } else {
+    exit 2;
   }
-  
-  exit 2;
 }
 
 if (!$isAlsaCapPresent) {
   print "ALSA Capabilities (c) 2007 Volker Schatz\n";
   print "alsacap is not present. This will not enable us to see the sound card capabilities.\n";
-  print "make alsacap? this requires autotoools. y=yes, any other key skip:";
+  print "make alsacap? this requires autotoools. (y)es, any other key skip:";
   $answer = <STDIN>;
   if ($answer =~ /[Yy]/) {
-    my $result = `cd src/alsacap; make; cd ../..`;
-    print "check out if installation was correct...";
-    if (-e "src/alsacap/alsacap") {
-      print "OK. restart program.\n";
-    } else {
-      print "FAILED. Please try to build manually at src/alsacap.\n";
-      exit 1;
-    }
-    exit 0;
+    $answer = system ("cd src/alsacap; make; cd ../..");
+    die "ALSACAP failed. please check what went wrong!" unless -e "src/alsacap/alsacap" and ($answer == 0);
   }
 }
 
