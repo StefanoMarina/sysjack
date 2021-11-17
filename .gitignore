@@ -2,8 +2,8 @@
 *.json
 *.service
 # alsacap build
-src/alsacap/alsacap
-src/alsacap/alsacap.1
+/src/alsacap/alsacap
+/src/alsacap/alsacap.1
 
 !Build/
 .last_cover_stats
