@@ -101,7 +101,7 @@ if (-e "./src/$unit.service.in") {
 }
 
 $source =~ s/USERNAME/$USER/g;
-$source =~ s/COMMAND_LINE/$unit $commandLine/g;
+$source =~ s/COMMAND_LINE/$commandLine/g;
 
 my $desc = (exists $options{'description'}) 
               ? $options{'description'}
