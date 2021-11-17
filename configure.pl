@@ -32,7 +32,7 @@ if (exists $options{'--help'} || exists $options{'-h'}) {
   config  *filename*  select a specific file path (otherwise config.json is generated)
   key     *string* if a .json file exists, specify a property. Root object is create if missing.
   user    *username* force username
-'
+';
 exit 0;
 }
 
@@ -187,7 +187,7 @@ foreach (@cards) {
 }
 
 
-$answer = requestInput("Select audio card (1-$index, CTRL+C to quit)", "\\d+", "");
+$answer = requestInput("Select audio card (1-$index, CTRL+C to quit)", "\\d+");
   
 exit 0 if (scalar($answer) > $index);
 my $selected_card = $cards[$answer-1];
@@ -228,7 +228,7 @@ if (-e "/etc/security/limits.d/audio.conf.disabled" || ! -e "/etc/security/limit
 }
 
 $answer = requestInput(
-  "Do you want to set $selected_card->{'longname'} as the default alsa card? Requires configure to be launched as sudo. (y)es or any other key to skip",
+  "Do you want to set $selected_card->{'card_longname'} as the default alsa card? Requires configure to be launched as sudo. (y)es or any other key to skip",
   "[yY]", "skip");
   
 if ($answer =~ /[Yy]/) {
@@ -251,16 +251,23 @@ if ($answer =~ /[Yy]/) {
     }
   ";
 
+  if (-e "/etc/asound.conf") {
+    system "cp /etc/asound.conf /home/$USER/.sysjack/asound.conf.backup";
+    open (FH, '>', "/home/$USER/.sysjack/asound.conf");
+    print FH $alsaFile;
+    close(FH);
+    $answer = system "sudo cp /home/$USER/.sysjack/asound.conf /etc/";
+    die "Installation of asound.conf failed." if ($answer != 0);
+  }
+
   doBackup("/etc/asound.conf", "asound.conf") if (-e "/etc/asound.conf");
-  open (FH, '>', "/etc/asound.conf") or die "$! ! Are you sure you are sudo?\n";
-  print FH $alsaFile;
-  close(FH);
+
   
   print "Forcing alsa reload. This may take a while...\n";
   if ( `which alsa` eq "") {
    system "sudo alsactl kill rescan";
   } else {
-    system "alsa force-reload";
+    system "sudo alsa force-reload";
   }
 }
 
