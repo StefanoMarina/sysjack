@@ -141,5 +141,5 @@ if ($answer =~ /[il]/i ) {
     print "created file $unit.service.\n" if !exists $options{'-s'};
   }
 } else {
-  print $source;
+  print $commandLine;
 }
