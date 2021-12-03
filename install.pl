@@ -16,6 +16,8 @@ my $answer; ## default answer scalar
 my $USER; ## username
 my %options; ## option json
 
+my $SRC_DIR = dirname(abs_path(__FILE__)) . "/src";
+
 sub replaceAll {
   my ($property, $string) = @_;
 
@@ -93,11 +95,11 @@ print "Unit $unit has command Line: $commandLine\n" if (!exists $options{'-s'});
 
 my $source = "";
 
-if (-e "./src/$unit.service.in") {
+if (-e "$SRC_DIR/$unit.service.in") {
   print "Found custom service source.\n" if (!exists $options{'-s'});
-  $source = Options::readFile("./src/$unit.service.in");
+  $source = Options::readFile("$SRC_DIR/$unit.service.in");
 } else {
-  $source = Options::readFile("./src/default.service.in");
+  $source = Options::readFile("$SRC_DIR/default.service.in");
 }
 
 $source =~ s/USERNAME/$USER/g;
